@@ -14,22 +14,23 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    private String password;
-    private String username;
-    private String role;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Post> posts = new ArrayList<>();
+  private String password;
+  private String username;
+  private String role;
 
-    public void addPost(Post post) {
-        posts.add(post);
-        post.setUser(this);
-    }
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Builder.Default
+  private List<Post> posts = new ArrayList<>();
+
+  public void addPost(Post post) {
+    posts.add(post);
+    post.setUser(this);
+  }
 
 
 }

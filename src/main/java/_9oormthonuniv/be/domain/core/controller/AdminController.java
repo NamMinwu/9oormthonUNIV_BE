@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @ResponseBody
 public class AdminController {
 
-    @GetMapping("/admin")
-    public String adminPage() {
-        return "admin";
-    }
+  @GetMapping("/admin")
+  public String adminPage() {
+    return "admin";
+  }
 }

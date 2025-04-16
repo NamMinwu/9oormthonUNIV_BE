@@ -10,9 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Setter
 @NoArgsConstructor
 public class PostCreateRequestDto {
-    private String title;
-    private String content;
-    private Long userId; // 연결할 유저 ID
-    private MultipartFile imageFile;
+
+  private String title;
+  private String content;
+  private Long userId; // 연결할 유저 ID
+  private MultipartFile imageFile;
 }
 

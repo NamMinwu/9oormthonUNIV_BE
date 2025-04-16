@@ -10,32 +10,33 @@ import java.util.List;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final User user;
-    public CustomUserDetails(User user) {
-        this.user = user;
-    }
+  private final User user;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add(
-                new GrantedAuthority() {
-                    @Override
-                    public String getAuthority() {
-                        return user.getRole();
-                    }
-                }
-        );
-        return collection;
-    }
+  public CustomUserDetails(User user) {
+    this.user = user;
+  }
 
-    @Override
-    public String getPassword() {
-        return user.getPassword();
-    }
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    Collection<GrantedAuthority> collection = new ArrayList<>();
+    collection.add(
+        new GrantedAuthority() {
+          @Override
+          public String getAuthority() {
+            return user.getRole();
+          }
+        }
+    );
+    return collection;
+  }
 
-    @Override
-    public String getUsername() {
-        return user.getUsername();
-    }
+  @Override
+  public String getPassword() {
+    return user.getPassword();
+  }
+
+  @Override
+  public String getUsername() {
+    return user.getUsername();
+  }
 }

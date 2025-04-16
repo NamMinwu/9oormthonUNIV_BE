@@ -9,7 +9,8 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class UserResponseDto {
-    private Long id;
-    private String username;
-    private List<PostResponseDto> posts;
+
+  private Long id;
+  private String username;
+  private List<PostResponseDto> posts;
 }

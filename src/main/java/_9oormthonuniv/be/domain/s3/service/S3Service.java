@@ -22,44 +22,43 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class S3Service {
-    @Value("${cloud.s3.bucket}")
-    private String bucket;
 
-    private final S3Client s3Client;
-    private final S3TransferManager transferManager;
+  @Value("${cloud.s3.bucket}")
+  private String bucket;
 
-
-
-    public String uploadFile(MultipartFile file) throws IOException {
-        String originalName = Optional.ofNullable(file.getOriginalFilename())
-                .orElse("file");
-
-        String fileName = UUID.randomUUID() + "_" + originalName;
-        try{
-            // MultipartFile -> File 변환
-            File tempFile = File.createTempFile("upload-", originalName);
-            file.transferTo(tempFile);
-            tempFile.deleteOnExit();
-
-            // UploadFileRequest 생성
-            UploadFileRequest uploadFileRequest = UploadFileRequest.builder()
-                    .putObjectRequest(b -> b.bucket(bucket).key(
-                            fileName
-                    ))
-                    .source(tempFile.toPath())
-                    .build();
-
-            FileUpload fileUpload = transferManager.uploadFile(uploadFileRequest);
-            CompletedFileUpload uploadResult = fileUpload.completionFuture().join();
+  private final S3Client s3Client;
+  private final S3TransferManager transferManager;
 
 
-            // ✅ S3 URL 생성해서 반환
-            String fileUrl = s3Client.utilities().getUrl(b -> b.bucket(bucket).key(fileName)).toExternalForm();
+  public String uploadFile(MultipartFile file) throws IOException {
+    String originalName = Optional.ofNullable(file.getOriginalFilename()).orElse("file");
 
-            return fileUrl;
-        }catch (Exception e){
-            throw new RuntimeException("파일 업로드 실패", e);
-        }
+    String fileName = UUID.randomUUID() + "_" + originalName;
+    try {
+      // MultipartFile -> File 변환
+      File tempFile = File.createTempFile("upload-", originalName);
+      file.transferTo(tempFile);
+      tempFile.deleteOnExit();
 
+      // UploadFileRequest 생성
+      UploadFileRequest uploadFileRequest = UploadFileRequest
+          .builder()
+          .putObjectRequest(b -> b.bucket(bucket).key(fileName))
+          .source(tempFile.toPath()).build();
+
+      FileUpload fileUpload = transferManager.uploadFile(uploadFileRequest);
+      CompletedFileUpload uploadResult = fileUpload.completionFuture().join();
+
+      // ✅ S3 URL 생성해서 반환
+      String fileUrl = s3Client
+          .utilities()
+          .getUrl(b -> b.bucket(bucket).key(fileName))
+          .toExternalForm();
+
+      return fileUrl;
+    } catch (Exception e) {
+      throw new RuntimeException("파일 업로드 실패", e);
     }
+
+  }
 }

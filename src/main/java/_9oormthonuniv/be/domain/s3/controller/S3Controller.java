@@ -15,20 +15,20 @@ import java.io.IOException;
 @RequestMapping("/api/images")
 public class S3Controller {
 
-    private final S3Service s3Service;
+  private final S3Service s3Service;
 
-    public S3Controller(S3Service s3Service) {
-        this.s3Service = s3Service;
+  public S3Controller(S3Service s3Service) {
+    this.s3Service = s3Service;
+  }
+
+  @PostMapping("/upload")
+  public ResponseEntity<String> uploadImage(@RequestPart MultipartFile file) {
+
+    try {
+      String url = s3Service.uploadFile(file);
+      return ResponseEntity.ok(url);
+    } catch (IOException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업로드 실패");
     }
-
-    @PostMapping("/upload")
-    public ResponseEntity<String> uploadImage(@RequestPart MultipartFile file) {
-
-        try {
-            String url = s3Service.uploadFile(file);
-            return ResponseEntity.ok(url);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업로드 실패");
-        }
-    }
+  }
 }

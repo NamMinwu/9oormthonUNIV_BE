@@ -15,49 +15,50 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+  private final UserRepository userRepository;
+  private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+  public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    this.userRepository = userRepository;
+    this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+  }
+
+  public void createUser(CreateUserDto createUserDto) {
+    String username = createUserDto.getUsername();
+    String password = createUserDto.getPassword();
+
+    Boolean isExists = userRepository.existsByUsername(username);
+
+    if (isExists) {
+      return;
     }
 
-    public void createUser(CreateUserDto createUserDto) {
-        String username = createUserDto.getUsername();
-        String password = createUserDto.getPassword();
+    User user = User.builder().username(username).password(bCryptPasswordEncoder.encode(password))
+        .role("ROLE_ADMIN").build();
+    userRepository.save(user);
+  }
 
-        Boolean isExists = userRepository.existsByUsername(username);
+  @Transactional()
+  public UserResponseDto findUserByUsername(String username) {
+    User user = userRepository.findByUsername(username);
 
-        if (isExists) {
-            return;
-        }
-
-        User user = User.builder().username(username).password(bCryptPasswordEncoder.encode(password)).role("ROLE_ADMIN").build();
-        userRepository.save(user);
+    if (user == null) {
+      return null;
     }
 
-    @Transactional()
-    public UserResponseDto findUserByUsername(String username) {
-        User user = userRepository.findByUsername(username);
+    List<PostResponseDto> posts = user.getPosts().stream().map(post ->
+        new PostResponseDto(
+            post.getId(),
+            post.getTitle(),
+            post.getContent(),
+            post.getImageUrl()
+        )
+    ).collect(Collectors.toList());
 
-        if (user == null) {
-            return null;
-        }
-
-        List<PostResponseDto> posts = user.getPosts().stream().map(post ->
-                new PostResponseDto(
-                        post.getId(),
-                        post.getTitle(),
-                        post.getContent(),
-                        post.getImageUrl()
-                )
-        ).collect(Collectors.toList());
-
-        return new UserResponseDto(
-                user.getId(),
-                user.getUsername(),
-                posts
-        );
-    }
+    return new UserResponseDto(
+        user.getId(),
+        user.getUsername(),
+        posts
+    );
+  }
 }
