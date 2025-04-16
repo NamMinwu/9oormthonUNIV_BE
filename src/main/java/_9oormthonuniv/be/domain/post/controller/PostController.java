@@ -17,16 +17,21 @@ import java.util.List;
 @RequestMapping("/api/posts")
 public class PostController {
 
-    private final PostService postService;
+  private final PostService postService;
 
-    // 게시글 생성
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<PostCreateResponseDto> createPost(@ModelAttribute PostCreateRequestDto request) throws IOException {
-        PostCreateResponseDto responseDto = postService.create(request);
-        return ResponseEntity.ok(responseDto);
-    }
+  // 게시글 생성
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<PostCreateResponseDto> createPost(
+      @ModelAttribute PostCreateRequestDto request) throws IOException {
+    PostCreateResponseDto responseDto = postService.create(request);
+    return ResponseEntity.ok(responseDto);
+  }
 
-    
+  // 모두 조회
+  @GetMapping("/all")
+  public ResponseEntity<List<PostResponseDto>> getAll() {
+    return ResponseEntity.ok(this.postService.getAll());
+  }
 
 
 }
