@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class MainController {
     @GetMapping("/")
     public String mainPage() {
-        String name = SecurityContextHolder.getContext().getAuthentication().getName();
-        return "Hello World! Welcome " + name + "!";
+        return "Hello World! Welcome";
     }
 }

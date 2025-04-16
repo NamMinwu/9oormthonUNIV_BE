@@ -3,6 +3,7 @@ package _9oormthonuniv.be.global.config;
 import _9oormthonuniv.be.global.jwt.JWTFilter;
 import _9oormthonuniv.be.global.jwt.JWTUtil;
 import _9oormthonuniv.be.global.jwt.LoginFilter;
+import com.amazonaws.HttpMethod;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -79,10 +80,12 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/api/users/signup", "/api/users/", "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html").permitAll()
-                        .requestMatchers("/admin").hasRole("ADMIN").anyRequest().authenticated());
+                        .requestMatchers("/login", "/", "/api/users/signup", "/v3/api-docs/**", "/api/images/**", "/api/**",
+                                "/swagger-ui/**", "/swagger-ui.html").permitAll() // 회원가입과 관련된 모든 요청 허용
+                        .requestMatchers("/admin").hasRole("ADMIN") // /admin 경로는 ADMIN만
+                        .anyRequest().authenticated() // 그 외 나머지 요청은 인증 필요
+                );
+
 
         http.addFilterBefore(
                 new JWTFilter(jwtUtil), LoginFilter.class
