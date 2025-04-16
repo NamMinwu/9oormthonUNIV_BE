@@ -3,7 +3,6 @@ package _9oormthonuniv.be.global.config;
 import _9oormthonuniv.be.global.jwt.JWTFilter;
 import _9oormthonuniv.be.global.jwt.JWTUtil;
 import _9oormthonuniv.be.global.jwt.LoginFilter;
-import com.amazonaws.HttpMethod;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

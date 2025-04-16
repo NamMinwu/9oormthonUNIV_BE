@@ -2,6 +2,7 @@ package _9oormthonuniv.be.domain.post.service;
 
 import _9oormthonuniv.be.domain.post.dto.request.PostCreateRequestDto;
 import _9oormthonuniv.be.domain.post.dto.respose.PostCreateResponseDto;
+import _9oormthonuniv.be.domain.post.dto.respose.PostResponseDto;
 import _9oormthonuniv.be.domain.post.entity.Post;
 import _9oormthonuniv.be.domain.s3.service.S3Service;
 import _9oormthonuniv.be.domain.user.entity.User;
@@ -47,12 +48,18 @@ public class PostService {
         // 저장 (cascade = ALL 이므로 user 저장 시 post도 저장됨)
         userRepository.save(user);
 
-        return new PostCreateResponseDto(
-                post.getId(),
-                post.getTitle(),
-                post.getContent(),
-                post.getImageUrl(),
+        return PostCreateResponseDto.builder().id(
+                post.getId()
+        ).title(
+                post.getTitle()
+        ).content(
+                post.getContent()
+        ).imageUrl(
+                post.getImageUrl()
+        ).username(
                 user.getUsername()
-        );
+        ).build();
+
+//        return PostCreateRequestDto.builder().id
     }
 }
