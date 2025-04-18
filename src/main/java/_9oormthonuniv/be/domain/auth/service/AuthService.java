@@ -62,9 +62,20 @@ public class AuthService {
     // 3. 인증 정보를 기반으로 JWT 토큰 생성
     TokenDTO tokenDto = jwtTokenProvider.generateToken(userId,
         userRole.iterator().next().getAuthority());
-    // 리프래시 토큰 저장
-    refreshTokenService.save(Long.parseLong(userId),
-        tokenDto.getRefreshToken(), 259200000);
+    // 리프래시 이미 있으면 엡뎃 없으면 저장
+    Optional<RefreshToken> savedRefreshToken = refreshTokenRepository.findByUserId(
+        Long.parseLong(userId));
+
+    if (savedRefreshToken.isPresent()) {
+      refreshTokenService.update(
+          Long.parseLong(userId),
+          tokenDto.getRefreshToken(),
+          259200000
+      );
+    } else {
+      refreshTokenService.save(Long.parseLong(userId),
+          tokenDto.getRefreshToken(), 259200000);
+    }
 
     return AuthLoginResponseDTO.builder().role(
         userRole.iterator().next().getAuthority()
@@ -91,7 +102,6 @@ public class AuthService {
     // refresh 만기 시간 확인
     if (jwtTokenProvider.validateToken(refreshToken)) {
       String userId = jwtTokenProvider.getUserId(refreshToken);
-
       String role = jwtTokenProvider.getRole(refreshToken);
 
       RefreshToken savedRefreshToken = refreshTokenRepository.findByUserId(
