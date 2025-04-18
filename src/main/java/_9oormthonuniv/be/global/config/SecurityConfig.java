@@ -1,8 +1,8 @@
 package _9oormthonuniv.be.global.config;
 
+import _9oormthonuniv.be.domain.user.repository.UserRepository;
 import _9oormthonuniv.be.global.security.jwt.JWTAuthenticationFilter;
 import _9oormthonuniv.be.global.security.jwt.JWTTokenProvider;
-import _9oormthonuniv.be.global.security.jwt.JWTLoginFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,10 +26,13 @@ public class SecurityConfig {
 
 
   private final JWTTokenProvider jwtTokenProvider;
+  private final UserRepository userRepository;
 
   public SecurityConfig(
-      JWTTokenProvider jwtTokenProvider) {
+      JWTTokenProvider jwtTokenProvider, UserRepository userRepository) {
     this.jwtTokenProvider = jwtTokenProvider;
+    this.userRepository = userRepository;
+
   }
 
   @Bean
@@ -80,14 +83,17 @@ public class SecurityConfig {
     http
         .authorizeHttpRequests((auth) -> auth
             .requestMatchers("/", "/v3/api-docs/**",
-                "/api/**",
+                "/api/v1/auth/login",
+                "/api/v1/auth/token/refresh",
+                "/api/v1/users/**",
                 "/swagger-ui/**", "/swagger-ui.html").permitAll() // 회원가입과 관련된 모든 요청 허용
             .requestMatchers("/admin").hasRole("ADMIN") // /admin 경로는 ADMIN만
             .anyRequest().authenticated() // 그 외 나머지 요청은 인증 필요
         );
 
     http.addFilterBefore(
-        new JWTAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class
+        new JWTAuthenticationFilter(userRepository, jwtTokenProvider),
+        UsernamePasswordAuthenticationFilter.class
     );
 
     //세션 설정

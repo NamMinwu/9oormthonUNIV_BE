@@ -36,7 +36,7 @@ public class UserService {
     }
 
     User user = User.builder().username(username).password(bCryptPasswordEncoder.encode(password))
-        .role(Role.USER).build();
+        .role(Role.ADMIN).build();
     userRepository.save(user);
   }
 

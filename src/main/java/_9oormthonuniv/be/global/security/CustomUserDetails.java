@@ -23,7 +23,7 @@ public class CustomUserDetails implements UserDetails {
   public Collection<? extends GrantedAuthority> getAuthorities() {
     Collection<GrantedAuthority> collection = new ArrayList<>();
     // USER, ADMIn 따라 권한 설정하기 위해, authorities에 추가
-    collection.add(new SimpleGrantedAuthority(user.getRole().toString()));
+    collection.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().toString()));
     return collection;
   }
 
