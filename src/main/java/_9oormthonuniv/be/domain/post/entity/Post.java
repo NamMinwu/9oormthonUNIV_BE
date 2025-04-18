@@ -1,5 +1,6 @@
 package _9oormthonuniv.be.domain.post.entity;
 
+import _9oormthonuniv.be.global.common.entity.BaseEntity;
 import _9oormthonuniv.be.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor()
 @AllArgsConstructor
 @Builder
-public class Post {
+public class Post extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

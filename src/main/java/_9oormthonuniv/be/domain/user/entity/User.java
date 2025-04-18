@@ -1,8 +1,9 @@
 package _9oormthonuniv.be.domain.user.entity;
 
+import _9oormthonuniv.be.global.common.entity.BaseEntity;
 import _9oormthonuniv.be.domain.post.entity.Post;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -13,15 +14,23 @@ import java.util.List;
 @NoArgsConstructor()
 @AllArgsConstructor
 @Builder
-public class User {
+public class User extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @NotNull
+  @Column(nullable = false)
   private String password;
+
+  @NotNull
+  @Column(nullable = false)
   private String username;
-  private String role;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private Role role;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default

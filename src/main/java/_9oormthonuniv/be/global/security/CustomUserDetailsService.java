@@ -1,6 +1,5 @@
-package _9oormthonuniv.be.domain.user.service;
+package _9oormthonuniv.be.global.security;
 
-import _9oormthonuniv.be.domain.user.dto.CustomUserDetails;
 import _9oormthonuniv.be.domain.user.entity.User;
 import _9oormthonuniv.be.domain.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,12 +18,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = this.userRepository.findByUsername(username);
+    // username이 의미하는 것은 Id
 
-    if (user != null) {
-      return new CustomUserDetails(user);
-    }
+    User user = this.userRepository.findByUsername(username)
+        .orElseThrow(() -> new UsernameNotFoundException("해당 ID의 유저가 없습니다"));
 
-    return null;
+    return new CustomUserDetails(user);
+
   }
 }

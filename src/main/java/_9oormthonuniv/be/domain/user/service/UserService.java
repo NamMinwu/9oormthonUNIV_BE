@@ -3,9 +3,11 @@ package _9oormthonuniv.be.domain.user.service;
 import _9oormthonuniv.be.domain.post.dto.respose.PostResponseDto;
 import _9oormthonuniv.be.domain.user.dto.CreateUserDto;
 import _9oormthonuniv.be.domain.user.dto.UserResponseDto;
+import _9oormthonuniv.be.domain.user.entity.Role;
 import _9oormthonuniv.be.domain.user.entity.User;
 import _9oormthonuniv.be.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,14 +36,14 @@ public class UserService {
     }
 
     User user = User.builder().username(username).password(bCryptPasswordEncoder.encode(password))
-        .role("ROLE_ADMIN").build();
+        .role(Role.USER).build();
     userRepository.save(user);
   }
 
   @Transactional()
   public UserResponseDto findUserByUsername(String username) {
-    User user = userRepository.findByUsername(username);
-
+    User user = this.userRepository.findByUsername(username)
+        .orElseThrow(() -> new UsernameNotFoundException("해당 ID의 유저가 없습니다"));
     if (user == null) {
       return null;
     }
