@@ -50,7 +50,7 @@ public class JWTTokenProvider {
   }
 
   public String generateTokenByType(String userId,
-      Collection<? extends GrantedAuthority> authorities, TokenType tokenType) {
+      String role, TokenType tokenType) {
     Date now = new Date();
     Date expiration;
     // 분기 나눠야 함, 리프레쉬 토큰과 액세스 토큰의 만료시간이 다르니까
@@ -62,7 +62,7 @@ public class JWTTokenProvider {
 
     return Jwts.builder()
         .claim("userId", userId)
-        .claim("role", authorities.iterator().next().getAuthority())
+        .claim("role", role)
         .issuedAt(new Date(System.currentTimeMillis()))
         .expiration(expiration)
         .signWith(secretKey)
@@ -70,9 +70,9 @@ public class JWTTokenProvider {
   }
 
   // 유저 정보를 가지고 AccessToken, RefreshToken을 생성
-  public TokenDTO generateToken(String userId, Collection<? extends GrantedAuthority> authorities) {
-    String accessToken = generateTokenByType(userId, authorities, TokenType.ACCESS);
-    String refreshToken = generateTokenByType(userId, authorities, TokenType.REFRESH);
+  public TokenDTO generateToken(String userId, String role) {
+    String accessToken = generateTokenByType(userId, role, TokenType.ACCESS);
+    String refreshToken = generateTokenByType(userId, role, TokenType.REFRESH);
 
     return TokenDTO.builder().accessToken(accessToken).refreshToken(refreshToken)
         .grantType("Bearer").build();

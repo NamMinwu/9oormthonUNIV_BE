@@ -33,7 +33,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
-@Slf4j
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -46,8 +45,6 @@ public class AuthService {
   public AuthLoginResponseDTO login(AuthLoginRequestDTO authLoginRequestDTO) {
     // 1. Login ID/PW 를 기반으로 Authentication 객체 생성
     // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
-    log.info("값: {}", authLoginRequestDTO.getPassword());
-    log.info("값2: {}", authLoginRequestDTO.getUsername());
 
     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
         authLoginRequestDTO.getUsername(),
@@ -63,7 +60,8 @@ public class AuthService {
     Collection<? extends GrantedAuthority> userRole = customUserDetails.getAuthorities();
 
     // 3. 인증 정보를 기반으로 JWT 토큰 생성
-    TokenDTO tokenDto = jwtTokenProvider.generateToken(userId, userRole);
+    TokenDTO tokenDto = jwtTokenProvider.generateToken(userId,
+        userRole.iterator().next().getAuthority());
     // 리프래시 토큰 저장
     refreshTokenService.save(Long.parseLong(userId),
         tokenDto.getRefreshToken(), 259200000);
@@ -96,9 +94,6 @@ public class AuthService {
 
       String role = jwtTokenProvider.getRole(refreshToken);
 
-      Collection<? extends GrantedAuthority> authorities =
-          Collections.singletonList(new SimpleGrantedAuthority(role));
-
       RefreshToken savedRefreshToken = refreshTokenRepository.findByUserId(
               Long.parseLong(userId))
           .orElseThrow(() -> new BadCredentialsException(
@@ -109,7 +104,7 @@ public class AuthService {
       }
 
       // 이 아래에서 savedRefreshToken을 사용해서 accessToken 재발급 로직 등 추가
-      TokenDTO newTokens = jwtTokenProvider.generateToken(userId, authorities);
+      TokenDTO newTokens = jwtTokenProvider.generateToken(userId, role);
 
       refreshTokenService.update(Long.parseLong(userId), newTokens.getRefreshToken(), 259200000);
       return TokenRefreshResponseDTO
