@@ -33,7 +33,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     if (token != null && jwtTokenProvider.validateToken(token)) {
       Authentication authToken = getAuthentication(token);
       // 세션에 사용자 등록
-
       SecurityContextHolder.getContext().setAuthentication(authToken);
     }
     filterChain.doFilter(request, response);

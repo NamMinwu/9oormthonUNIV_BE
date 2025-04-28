@@ -32,6 +32,9 @@ public class User extends BaseEntity {
   @Column(nullable = false)
   private Role role;
 
+  @Enumerated(EnumType.STRING)
+  private LoginType loginType;
+
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   @Builder.Default
   private List<Post> posts = new ArrayList<>();

@@ -86,6 +86,7 @@ public class SecurityConfig {
                 "/api/v1/auth/login",
                 "/api/v1/auth/token/refresh",
                 "/api/v1/users/**",
+                "/api/v1/test/**",
                 "/swagger-ui/**", "/swagger-ui.html").permitAll() // 회원가입과 관련된 모든 요청 허용
             .requestMatchers("/admin").hasRole("ADMIN") // /admin 경로는 ADMIN만
             .anyRequest().authenticated() // 그 외 나머지 요청은 인증 필요
