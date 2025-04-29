@@ -12,6 +12,6 @@ public class MainController {
 
   @GetMapping("/")
   public String mainPage() {
-    return "Hello World! Wel co me test cdd cd ";
+    return "Hello World! Wel co me test cd d cd ";
   }
 }
