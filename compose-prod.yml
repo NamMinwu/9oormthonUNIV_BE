@@ -1,0 +1,38 @@
+services:
+  app:
+    image: minwu1234/9roomthonuniv:latest
+    container_name: spring_boot_app
+    ports:
+      - "8080:8080"
+    restart:
+      always
+    depends_on:
+      - mysql-db
+    networks:
+      - my_networks
+    env_file:
+      - .env
+
+  mysql-db:
+    image: mysql:8.0  # Use MySQL version 8
+    container_name: mysql-db
+    env_file:
+      - .env
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"  # Exposes MySQL port
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h mysql-db -uroot -p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - my_networks
+
+networks:
+  my_networks:
+    driver: bridge
+
+volumes:
+  mysql-data:
