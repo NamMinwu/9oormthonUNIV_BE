@@ -3,7 +3,7 @@ services:
     image: minwu1234/9roomthonuniv:latest
     container_name: spring_boot_app
     ports:
-      - "8080:8080"
+      - "80:8080"
     restart:
       always
     depends_on:
