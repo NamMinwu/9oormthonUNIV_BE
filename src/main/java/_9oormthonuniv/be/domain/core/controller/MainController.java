@@ -15,8 +15,4 @@ public class MainController {
     return "He ll o W or ld !  W e lcom  e t e s cd d cㄴd ";
   }
 
-  @GetMapping("/new")
-  public String testPage() {
-    return "He ll o  o r ld !  W e lcom  e t e s cd d cㄴd ";
-  }
 }
