@@ -1,0 +1,95 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring_boot_app
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - JWT_HEADER=${JWT_HEADER}
+      - JWT_EXPIRATION_TIME=${JWT_EXPIRATION_TIME}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_TOKEN_ACCESS_EXPIRATION=${JWT_TOKEN_ACCESS_EXPIRATION}
+      - JWT_TOKEN_REFRESH_EXPIRATION=${JWT_TOKEN_REFRESH_EXPIRATION}
+      - CLOUD_AWS_CREDENTIALS_ACCESS_KEY=${CLOUD_AWS_CREDENTIALS_ACCESS_KEY}
+      - CLOUD_AWS_CREDENTIALS_SECRET_KEY=${CLOUD_AWS_CREDENTIALS_SECRET_KEY}
+      - CLOUD_AWS_REGION_STATIC=${CLOUD_AWS_REGION_STATIC}
+      - CLOUD_S3_BUCKET=${CLOUD_S3_BUCKET}
+    ports:
+      - "8080:8080"
+    restart:
+      always
+    depends_on:
+      - mysql-db
+    networks:
+      - my_networks
+  zookeeper:
+    image: zookeeper:3.9.1
+    platform: linux/amd64
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    depends_on:
+      - kafka
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    platform: linux/amd64
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+  mysql-db:
+    image: mysql:8.0  # Use MySQL version 8
+    container_name: mysql-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"  # Exposes MySQL port
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h mysql-db -uroot -p${MYSQL_ROOT_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - my_networks
+
+
+
+  # Optional: If you want to use AWS S3 locally for testing, you can add a mock S3 service like LocalStack
+#  s3:
+#    image: localstack/localstack
+#    container_name: localstack
+#    environment:
+#      - SERVICES=s3
+#      - DEFAULT_REGION=ap-northeast-2
+#    ports:
+#      - "4566:4566"  # LocalStack exposes this port for services like S3
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+networks:
+  my_networks:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  kafka_data:
