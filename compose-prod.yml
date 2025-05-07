@@ -12,7 +12,8 @@ services:
       - my_networks
     env_file:
       - .env
-
+  
+  
   mysql-db:
     image: mysql:8.0  # Use MySQL version 8
     container_name: mysql-db

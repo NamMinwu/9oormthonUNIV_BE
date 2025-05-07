@@ -1,6 +1,8 @@
 package _9oormthonuniv.be.domain.post.service;
 
+import _9oormthonuniv.be.domain.kafka.service.KafkaProducerService;
 import _9oormthonuniv.be.domain.post.dto.request.PostCreateRequestDto;
+import _9oormthonuniv.be.domain.post.dto.request.PostKafkaMessageRequestDto;
 import _9oormthonuniv.be.domain.post.dto.respose.PostCreateResponseDto;
 import _9oormthonuniv.be.domain.post.dto.respose.PostResponseDto;
 import _9oormthonuniv.be.domain.post.entity.Post;
@@ -23,6 +25,7 @@ public class PostService {
   private final PostRepository postRepository;
   private final UserRepository userRepository;
   private final S3Service s3Service;
+  private final KafkaProducerService kafkaProducerService;
 
   @Transactional
   public PostCreateResponseDto create(PostCreateRequestDto requestDto) throws IOException {
@@ -49,6 +52,13 @@ public class PostService {
 
     // 저장 (cascade = ALL 이므로 user 저장 시 post도 저장됨)
     userRepository.save(user);
+
+    // Kafka 메시지 객체 생성
+    PostKafkaMessageRequestDto message = new PostKafkaMessageRequestDto(post.getId(),
+        post.getTitle(),
+        user.getUsername());
+    // Kafka로 메시지 전송
+    kafkaProducerService.sendTopic(message);
 
     return PostCreateResponseDto.builder()
         .id(post.getId())
