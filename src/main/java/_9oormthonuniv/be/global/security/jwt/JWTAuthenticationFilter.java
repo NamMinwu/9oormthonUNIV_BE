@@ -5,11 +5,13 @@ import _9oormthonuniv.be.domain.user.repository.UserRepository;
 import _9oormthonuniv.be.domain.user.service.UserService;
 import _9oormthonuniv.be.global.security.CustomUserDetails;
 import _9oormthonuniv.be.domain.user.entity.User;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 
@@ -20,6 +22,7 @@ import java.io.IOException;
 
 
 @RequiredArgsConstructor
+@Slf4j
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
   private final UserRepository userRepository;
@@ -29,14 +32,23 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
-    String token = jwtTokenProvider.resolveToken((HttpServletRequest) request); // 헤더에서 토큰을 받아옴
-    if (token != null && jwtTokenProvider.validateToken(token)) {
-      Authentication authToken = getAuthentication(token);
-      // 세션에 사용자 등록
-      SecurityContextHolder.getContext().setAuthentication(authToken);
-    }
-    filterChain.doFilter(request, response);
+    String token = jwtTokenProvider.resolveToken(request); // 헤더에서 토큰을 추출
 
+    try {
+
+      if (token != null && jwtTokenProvider.validateToken(token)) {
+        Authentication authToken = getAuthentication(token);
+        SecurityContextHolder.getContext().setAuthentication(authToken); // 인증 객체 설정
+      }
+    } catch (JwtException | IllegalArgumentException e) {
+      // JWT 관련 에러 처리
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.setContentType("application/json;charset=UTF-8");
+      response.getWriter().write("{\"error\": \"Invalid or expired JWT token\"}");
+      return;
+    }
+
+    filterChain.doFilter(request, response); // 다음 필터로 전달
   }
 
   private Authentication getAuthentication(String token) {

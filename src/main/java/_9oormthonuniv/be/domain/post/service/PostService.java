@@ -29,9 +29,9 @@ public class PostService {
 
   @Transactional
   public PostCreateResponseDto create(PostCreateRequestDto requestDto) throws IOException {
-    User user = userRepository.findById(requestDto.getUserId()).orElseThrow(
-        () -> new IllegalArgumentException("User not found")
-    );
+    
+    User user = userRepository.findById(requestDto.getUserId())
+        .orElseThrow(() -> new RuntimeException("User not found"));
 
     // 이미지 업로드
     String imageUrl = s3Service.uploadFile(requestDto.getImageFile());
