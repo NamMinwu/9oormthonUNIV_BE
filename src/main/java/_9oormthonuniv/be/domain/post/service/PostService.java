@@ -1,8 +1,7 @@
 package _9oormthonuniv.be.domain.post.service;
 
-import _9oormthonuniv.be.domain.kafka.service.KafkaProducerService;
+
 import _9oormthonuniv.be.domain.post.dto.request.PostCreateRequestDto;
-import _9oormthonuniv.be.domain.post.dto.request.PostKafkaMessageRequestDto;
 import _9oormthonuniv.be.domain.post.dto.respose.PostCreateResponseDto;
 import _9oormthonuniv.be.domain.post.dto.respose.PostResponseDto;
 import _9oormthonuniv.be.domain.post.entity.Post;
