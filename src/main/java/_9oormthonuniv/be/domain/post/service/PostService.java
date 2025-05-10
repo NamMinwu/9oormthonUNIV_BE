@@ -25,11 +25,11 @@ public class PostService {
   private final PostRepository postRepository;
   private final UserRepository userRepository;
   private final S3Service s3Service;
-  private final KafkaProducerService kafkaProducerService;
+//  private final KafkaProducerService kafkaProducerService;
 
   @Transactional
   public PostCreateResponseDto create(PostCreateRequestDto requestDto) throws IOException {
-    
+
     User user = userRepository.findById(requestDto.getUserId())
         .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -54,11 +54,11 @@ public class PostService {
     userRepository.save(user);
 
 //     Kafka 메시지 객체 생성
-    PostKafkaMessageRequestDto message = new PostKafkaMessageRequestDto(post.getId(),
-        post.getTitle(),
-        user.getUsername());
-//     Kafka로 메시지 전송
-    kafkaProducerService.sendTopic(message);
+//    PostKafkaMessageRequestDto message = new PostKafkaMessageRequestDto(post.getId(),
+//        post.getTitle(),
+//        user.getUsername());
+////     Kafka로 메시지 전송
+//    kafkaProducerService.sendTopic(message);
 
     return PostCreateResponseDto.builder()
         .id(post.getId())
