@@ -12,7 +12,7 @@ public class MainController {
 
   @GetMapping("/")
   public String mainPage() {
-    return "He ll o W or ld !  W e lc om  e t e s cd d cㄴd ";
+    return "He ll o W or ld !  W e lc  om  e t e s cd d cㄴd ";
   }
 
 }
