@@ -5,6 +5,9 @@ pipeline {
         DEPLOY_DIR = '/home/ubuntu/' // Spring 서버에서 Docker Compose를 실행할 디렉토리
         ENV_FILE_CREDENTIALS_ID = "9roomuniv-env"
         APP_YML_CREDENTIALS_ID = "application-file"
+        KUBE_MANIFESTS_DIR = 'k8s/'
+        CONFIGMAP_CREDENTIALS_ID = "k8s-configmap-file"   // 추가
+        SECRET_CREDENTIALS_ID = "k8s-secret-file"         // 추가
     }
     agent any
 
@@ -23,13 +26,20 @@ pipeline {
                 script {
                     withCredentials([
                         file(credentialsId: ENV_FILE_CREDENTIALS_ID, variable: 'ENV_FILE_PATH'),
-                        file(credentialsId: APP_YML_CREDENTIALS_ID, variable: 'APP_YML_PATH')
+                        file(credentialsId: APP_YML_CREDENTIALS_ID, variable: 'APP_YML_PATH'),
+                        file(credentialsId: CONFIGMAP_CREDENTIALS_ID, variable: 'CONFIGMAP_PATH'),
+                        file(credentialsId: SECRET_CREDENTIALS_ID, variable: 'SECRET_PATH'),
+
                     ]) {
                         // .env 파일 Jenkins 루트에 복사
                         sh 'cp "$ENV_FILE_PATH" "$WORKSPACE/.env"'
 
                         // application.yml을 클론된 프로젝트 안으로 복사
                         sh 'cp "$APP_YML_PATH" "$WORKSPACE/src/main/resources/application.yml"'
+
+                        // ConfigMap, Secret 매니페스트를 작업공간에 복사
+                        sh 'cp "$CONFIGMAP_PATH" "$WORKSPACE/k8s/configmap.yaml"'
+                        sh 'cp "$SECRET_PATH" "$WORKSPACE/k8s/secret.yaml"'
                     }
                 }
             }
@@ -72,37 +82,22 @@ pipeline {
                             sshPublisherDesc(
                                 configName: "${SSH_SERVER}",
                                 transfers: [
+                                    // ConfigMap 매니페스트 전송
                                     sshTransfer(
-                                        sourceFiles: '.env',
-                                        remoteDirectory: "",
-                                        removePrefix: '',
-                                        execCommand: ''
-                                    )
+                                        sourceFiles: "${KUBE_MANIFESTS_DIR}/**",
+                                        remoteDirectory: "k8s/",
+                                        removePrefix: "${KUBE_MANIFESTS_DIR}"
+                                        execCommand: """
+                                            kubectl apply -f /home/ubuntu/k8s/mysql/pvc.yml && \
+                                            kubectl apply -f /home/ubuntu/k8s/mysql/deployment.yml && \
+                                            kubectl apply -f /home/ubuntu/k8s/mysql/service.yml && \
+                                            kubectl apply -f /home/ubuntu/k8s/app/deployment.yml && \
+                                            kubectl apply -f /home/ubuntu/k8s/app/service.yml
+                                        """
+                                    ),
                                 ],
                                 usePromotionTimestamp: false,
                                 verbose: true
-                            )
-                        ])
-
-                        // 2. compose-prod.yml 전송 및 배포
-                        sshPublisher(publishers: [
-                            sshPublisherDesc(
-                                configName: "${SSH_SERVER}",
-                                transfers: [
-                                    sshTransfer(
-                                        sourceFiles: 'compose-prod.yml',
-                                        remoteDirectory: "",
-                                        removePrefix: '',
-                                        execCommand: """
-                                            echo '${DOCKER_PASSWORD}' | docker login -u '${DOCKER_USERNAME}' --password-stdin && \
-                                            docker-compose -f compose-prod.yml down && \
-                                            docker-compose -f compose-prod.yml pull && \
-                                            docker-compose -f compose-prod.yml up -d && \
-                                            docker logout
-
-                                        """
-                                    )
-                                ]
                             )
                         ])
                     }
