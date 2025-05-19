@@ -24,3 +24,5 @@ spec:
                 name: app-config
             - secretRef:
                 name: app-secret
+      imagePullSecrets:
+        - name: regcred

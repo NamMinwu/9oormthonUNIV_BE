@@ -88,6 +88,8 @@ pipeline {
                                         remoteDirectory: "k8s/",
                                         removePrefix: "${KUBE_MANIFESTS_DIR}",
                                         execCommand: """
+                                            kubectl apply -f /home/ubuntu/k8s/secret.yaml && \
+                                            kubectl apply -f /home/ubuntu/k8s/configmap.yaml && \
                                             kubectl apply -f /home/ubuntu/k8s/mysql/pvc.yml && \
                                             kubectl apply -f /home/ubuntu/k8s/mysql/deployment.yml && \
                                             kubectl apply -f /home/ubuntu/k8s/mysql/service.yml && \
