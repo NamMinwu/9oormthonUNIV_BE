@@ -86,7 +86,7 @@ pipeline {
                                     sshTransfer(
                                         sourceFiles: "${KUBE_MANIFESTS_DIR}/**",
                                         remoteDirectory: "k8s/",
-                                        removePrefix: "${KUBE_MANIFESTS_DIR}"
+                                        removePrefix: "${KUBE_MANIFESTS_DIR}",
                                         execCommand: """
                                             kubectl apply -f /home/ubuntu/k8s/mysql/pvc.yml && \
                                             kubectl apply -f /home/ubuntu/k8s/mysql/deployment.yml && \
@@ -94,7 +94,7 @@ pipeline {
                                             kubectl apply -f /home/ubuntu/k8s/app/deployment.yml && \
                                             kubectl apply -f /home/ubuntu/k8s/app/service.yml
                                         """
-                                    ),
+                                    )
                                 ],
                                 usePromotionTimestamp: false,
                                 verbose: true
