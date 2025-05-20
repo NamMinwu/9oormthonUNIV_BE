@@ -78,6 +78,22 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         // 1. .env 파일 전송
+                        // 1. .env 파일 전송
+                        sshPublisher(publishers: [
+                            sshPublisherDesc(
+                                configName: "${SSH_SERVER}",
+                                transfers: [
+                                sshTransfer(
+                                    sourceFiles: '.env',
+                                    remoteDirectory: "",
+                                    removePrefix: '',
+                                    execCommand: ''
+                                    )
+                                    ],
+                                    usePromotionTimestamp: false,
+                                    verbose: true
+                                )
+                        ])
                         sshPublisher(publishers: [
                             sshPublisherDesc(
                                 configName: "${SSH_SERVER}",
